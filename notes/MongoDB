@@ -1,0 +1,140 @@
+Aggregation
+==============================
+    A gathering or pulling or grouping
+
+    group or body or mass composed of many distinct parts or individauals
+    Collection of units or parts into a mass or whole.
+
+    While simpe database operation can be handled with single queries
+
+
+Aggregation Operations
+=======================
+    group values from multiple documents
+    perfomr operations on grouped data to return a single result
+    analyse how data changes over time.
+
+aggregation pipelines:
+------------------------    
+     contains stages -> process in specific way , each stage performig an operation on docs it reciecves and then passing that resut to next stage.
+
+$project stage
+===============
+  allows to change or miit doc fields that pipeline will output
+
+$count
+$fill
+$geoNear
+$group
+$limit
+$match
+$project
+$sample
+$search
+$set
+$skip
+$sort
+
+Aggragation Variables
+============================
+    $$NOW -> current data time
+    $$ROOT ->top leve doc currently being processed
+    $$CURRENT -> 
+
+Indexes
+===================================
+    stores small piece of collection's information in ordered format.
+
+    allows db to efficiently execute queries on indexed data without needing to scan every document in a collection.
+    Similar to tabe of contents
+
+Used to access the data more efficietly and fast
+
+    slower in saving and faster in search.
+
+Creating Indexes
+=================== 
+    singleField : 2dsphere
+    Compound: 3d
+    MultiKey: geoHaystack
+    geosoatial index
+    wildcard indexes (unpredictable like user0defined data)
+
+collection.createIndex({<key and index type>},(err,result)=>{
+    <!-- do simnthibg -->
+});
+
+compound index: sortd order that fields are specified so order matters. 
+    sort order does impact whether or not a specific sort operation can be performed using the index.
+
+mulitikey indexing
+===================
+    fields that store arrays, mongodb creates separate index for everey array eleement automaticaay when an indes on that field is created
+
+wildcard indexes
+
+
+    db.collection.createIndex({"data.$**": 1})
+for all fieds on doc
+    db.collection.createIndex({"$**": 1})
+
+Covered Queries
+===============
+    Queries ask for or project only fields that are indexed can skip doc scanning entirely.
+
+    It grabs the information through the index .
+
+Data Schema and Validations
+==============================
+Data Modeling:
+            balance of app needs, db performance, data retrieva pattern and inherent structure of data.
+        how we want our object to look.
+    
+Schema validation
+
+    Schema vaidation allow to specify what feilds , data types and data range are valid for docs within a collection.
+
+    an object {} and $jsonSchema operator
+
+    db.createCollection ("learners",{
+        validator:{
+            $jsonSchema:{
+                bsonType: "object",
+                tite: "Learner Validation",
+                required:["name","enrolled","year","campus"],
+                properties: {
+                    name:{
+                        bsonType:"string",
+                        description:"Name is required and msut be string"
+                    },
+                    enrolled:{
+                        bsonType:"bool",
+                        description:" Enrolled is required true of false"
+                    },
+                    year:{
+                        bsonType:"int",
+                        description:"required "
+                    },
+                    avg:{
+                        bson:"double",
+                        description: "must be double"
+                    },
+                    campus:{
+                        enum: ["Remote","Denver","NYC"],
+                        description:" Invalid"
+                    }
+                }
+            }
+        }
+    });
+
+
+    Modify
+    ==============
+        db.listCollections
+        
+    validationAction : "warn"
+
+    Bypass validation:
+
+        bypassDocumentValidation :true;
