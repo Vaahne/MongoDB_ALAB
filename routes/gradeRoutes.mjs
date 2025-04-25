@@ -10,5 +10,6 @@ router.route('/avg').get(gradeController.getAvg);
 
 router.route('/learnerAvg/:id').get(gradeController.getTotalLearnerAvg);
 router.route('/grades/stats').get(gradeController.getLearnersWithAvg70);
+router.route('/grades/stats/:id').get(gradeController.learnsWithSpecificClassId);
 
 export default router;

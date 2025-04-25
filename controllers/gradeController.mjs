@@ -184,9 +184,6 @@ async function getLearnerAvg(req,res){
     ])
     .toArray();
 
-    console.log(result);
-    console.log(result.length);
-
     if (!result) res.send("Not found").status(404);
     else res.send(result).status(200);
 }
@@ -247,14 +244,48 @@ async function getLearnersWithAvg70(req,res){
         { maxTimeMS: 60000, allowDiskUse: true }
       ).toArray();
 
-      console.log(result);
+    //   console.log(result);
        res.json(result);     
 }
+async function learnsWithSpecificClassId(req,res){
 
+    let collection = await db.collection('grades');    
+    let classId = req.params.id;
 
-export default {getAvg,geoNeaer,getLearnerAvg,getTotalLearnerAvg,getLearnersWithAvg70} ;
+    console.log(classId);
 
+    let result = await collection.aggregate(
+        [
+          {
+            $project: {
+              _id: 0,
+              learners: 1,
+              scores: 1,
+              class_id: 1,
+              average: { $avg: '$scores.score' }
+            }
+          },
+          {
+            $match: {
+              class_id: Number(classId),
+              average: { $gt: 70 }
+            }
+          },
+          {
+            $group:{
+                _id: '$class_id',
+                TotalNoOfStudents : {$sum:1}
+            }
+           }
+        ],
+        { maxTimeMS: 60000, allowDiskUse: true }
+      ).toArray();
 
+      console.log(result);
+      res.json(result);
+}
+
+export default {getAvg,geoNeaer,getLearnerAvg,getTotalLearnerAvg,getLearnersWithAvg70,learnsWithSpecificClassId} ;
 
 //   specify action
     //    let result = await collection
