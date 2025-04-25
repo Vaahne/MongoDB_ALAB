@@ -200,12 +200,49 @@ async function getLearnersWithAvg70(req,res){
             $project: {
               _id: 0,
               scores: 1,
-              noOfLearners: 1,
               avg: { $avg: '$scores.score' },
+              percentOfLearnersAvg: 1
             }
           },
-          { $match: { avg: { $gt: 70 } } },
-          { $count: 'Learners With Average > 70' }
+          {
+            $facet: {
+              above70: [
+                { $match: { avg: { $gt: 70 } } },
+                { $count: 'count' }
+              ],
+              total: [{ $count: 'count' }]
+            }
+          },
+          {
+            $project: {
+              learnersAbove70: {
+                $arrayElemAt: ['$above70.count', 0]
+              },
+              totalLearners: {
+                $arrayElemAt: ['$total.count', 0]
+              }
+            }
+          },
+          {
+            $addFields: {
+              Percentage: {
+                $round: [
+                  {
+                    $multiply: [
+                      {
+                        $divide: [
+                          '$learnersAbove70',
+                          '$totalLearners'
+                        ]
+                      },
+                      100
+                    ]
+                  },
+                  2
+                ]
+              }
+            }
+          }
         ],
         { maxTimeMS: 60000, allowDiskUse: true }
       ).toArray();
