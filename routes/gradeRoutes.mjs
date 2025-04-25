@@ -3,6 +3,8 @@ import gradeController from '../controllers/gradeController.mjs'
 
 const router = express.Router();
 
+router.route('/').get(gradeController.creatingIndex);
+
 router.route('/avg').get(gradeController.getAvg);
 
 // This is using sample_restaurants

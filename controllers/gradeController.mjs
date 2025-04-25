@@ -1,3 +1,4 @@
+import { BSONType } from 'mongodb';
 import db from '../db/conn.mjs';
 
 async function getAvg(req,res){
@@ -252,8 +253,6 @@ async function learnsWithSpecificClassId(req,res){
     let collection = await db.collection('grades');    
     let classId = req.params.id;
 
-    console.log(classId);
-
     let result = await collection.aggregate(
         [
           {
@@ -271,7 +270,7 @@ async function learnsWithSpecificClassId(req,res){
               average: { $gt: 70 }
             }
           },
-          {
+          { 
             $group:{
                 _id: '$class_id',
                 TotalNoOfStudents : {$sum:1}
@@ -284,8 +283,52 @@ async function learnsWithSpecificClassId(req,res){
       console.log(result);
       res.json(result);
 }
+async function creatingIndex(req,res){
+    let collection = await db.collection('grades');    
 
-export default {getAvg,geoNeaer,getLearnerAvg,getTotalLearnerAvg,getLearnersWithAvg70,learnsWithSpecificClassId} ;
+    await collection.createIndex({class_id : 1});
+    await collection.createIndex({learner_id : 1});
+
+    await collection.createIndex({class_id:1,learner_id:1});
+
+    validations(req,res);
+    res.json({single_feild_index:'Single field index created for class_id and index_id',compound_index: `successfully created`})
+}
+
+async function validations(req,res){
+    // let collection = await db.collection('grades');    
+
+    await db.command(
+        {
+            collMod: 'grades',
+            validator:{
+                $jsonSchema:{
+                    bsonType:  'object',
+                    title: "grades Validation",
+                    required : ["class_id","learner_id"],
+                    properties:{
+                        class_id:{
+                            bsonType: "int",
+                            description: "Only numbers allowed between 0 and 300",
+                            maximum: 300,
+                            minimum: 0
+                        },
+                        learner_id:{
+                            bsonType: "int",
+                            description: "Any integer greater than 0",
+                            minimum : 1
+                        }
+                    }
+                }
+            },
+            validationAction : "warn"
+        }
+    )
+    console.log("Successful validations added");
+}
+
+
+export default {getAvg,geoNeaer,getLearnerAvg,getTotalLearnerAvg,getLearnersWithAvg70,learnsWithSpecificClassId,creatingIndex,validations} ;
 
 //   specify action
     //    let result = await collection

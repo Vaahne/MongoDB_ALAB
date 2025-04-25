@@ -1,6 +1,5 @@
 import express from 'express'
 import dotenv from "dotenv"
-// import db from './db/conn.mjs'
 import gradeRoute from './routes/gradeRoutes.mjs'
 
 dotenv.config();
@@ -12,6 +11,7 @@ app.use(express.json());
 
 // routes
 app.use('/',gradeRoute);
+
 
 
 // Error handling middleware
